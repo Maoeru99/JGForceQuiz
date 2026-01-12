@@ -183,8 +183,12 @@ function mostraRisultato(){
     ctxChart.font="16px 'Orbitron'";
     ctxChart.textAlign="center";
     ctxChart.textBaseline="middle";
-    const perc = totale===0?0:Math.round((d.value/totale)*100)+"%";
-    ctxChart.fillText(perc,labelX,labelY);
+    // etichetta percentuale solo se > 0
+    const perc = totale===0 ? 0 : Math.round((d.value/totale)*100);
+    if (perc > 0) {
+      ctxChart.fillText(perc+"%", labelX, labelY);
+    }
+
 
     startAngle += sliceAngle;
   });
