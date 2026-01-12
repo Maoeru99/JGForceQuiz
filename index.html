@@ -16,7 +16,6 @@
 /* Corpo e sfondo */
 body {
   font-family: 'Orbitron', sans-serif;
-  background: radial-gradient(#000000, #0b0b0b);
   color: #f5f5f5;
   max-width: 600px;
   margin: 0 auto;
@@ -24,28 +23,17 @@ body {
   text-align: center;
   overflow-x: hidden;
   position: relative;
+  background: black;
 }
 
-/* Stelle animate con CSS puro */
-body::before {
-  content:"";
+/* Canvas stelle */
+#stars {
   position: fixed;
   top:0; left:0;
-  width:100%; height:100%;
+  width:100%;
+  height:100%;
   z-index: -1;
-  background: transparent;
-  box-shadow:
-    10vw 20vh white,50vw 30vh white,70vw 80vh white,
-    20vw 70vh white,90vw 10vh white,40vw 40vh white,
-    60vw 60vh white,30vw 20vh white,80vw 50vh white,
-    15vw 85vh white,25vw 15vh white,75vw 25vh white,
-    5vw 90vh white,85vw 5vh white,55vw 75vh white;
-  animation: stars 15s linear infinite;
-}
-@keyframes stars {
-  0% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-2px) translateX(1px); }
-  100% { transform: translateY(0) translateX(0); }
+  background: black;
 }
 
 /* Titoli */
@@ -130,6 +118,8 @@ button:hover {
 </head>
 
 <body>
+<canvas id="stars"></canvas>
+
 <h1>Quiz della Forza</h1>
 <p style="font-size:12px; opacity:0.7;">Scopri se sei Jedi, Sith o Jedi Grigio</p>
 
@@ -158,6 +148,7 @@ button:hover {
 <button id="ricomincia" style="display:none;">🔄 Ricomincia il Quiz</button>
 
 <script>
+// ===== Quiz logica =====
 let domandaCorrente = 0;
 const domande = document.querySelectorAll(".domanda");
 const nextBtn = document.getElementById("next");
@@ -214,7 +205,51 @@ ricominciaBtn.addEventListener("click", function(){
   aggiornaProgress();
 });
 
-/* PWA: service worker registrazione */
+// ===== Stelle animate con Canvas =====
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+const stars = [];
+const numStars = 150;
+
+// crea stelle
+for(let i=0;i<numStars;i++){
+  stars.push({
+    x: Math.random()*width,
+    y: Math.random()*height,
+    r: Math.random()*1.5+0.5,
+    dx: (Math.random()-0.5)/2,
+    dy: (Math.random()-0.5)/2
+  });
+}
+
+function animateStars(){
+  ctx.clearRect(0,0,width,height);
+  for(let s of stars){
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle="white";
+    ctx.fill();
+    s.x += s.dx;
+    s.y += s.dy;
+
+    if(s.x<0) s.x=width;
+    if(s.x>width) s.x=0;
+    if(s.y<0) s.y=height;
+    if(s.y>height) s.y=0;
+  }
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+window.addEventListener('resize', ()=>{
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
+
+// PWA: service worker registrazione
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("service-worker.js");
 }
