@@ -27,11 +27,28 @@
       margin: 10px 0;
       text-align: left;
     }
+    #progress-container {
+      width: 100%;
+      background-color: #ddd;
+      height: 10px;
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #3f8cff;
+      transition: width 0.4s ease;
+    }
   </style>
 </head>
 <body>
 
 <h1>🔮 Quiz della Forza</h1>
+<div id="progress-container">
+  <div id="progress-bar"></div>
+</div>
 
 <!-- DOMANDA 1 -->
 <div class="domanda attiva">
@@ -82,11 +99,22 @@
 </div>
 
 <script>
+const domande = document.querySelectorAll(".domanda");
+const totaleDomande = domande.length - 1; // escludiamo il risultato
+const progressBar = document.getElementById("progress-bar");
+
 let punteggi = {
   jedi: 0,
   sith: 0,
   grigio: 0
 };
+
+let domandaCorrente = 0;
+
+function aggiornaProgress() {
+  const percentuale = (domandaCorrente / totaleDomande) * 100;
+  progressBar.style.width = percentuale + "%";
+}
 
 function avanti(numeroDomanda) {
   const risposta = document.querySelector(`input[name="q${numeroDomanda}"]:checked`);
@@ -99,10 +127,15 @@ function avanti(numeroDomanda) {
   punteggi.sith += parseInt(risposta.dataset.sith);
   punteggi.grigio += parseInt(risposta.dataset.grigio);
 
-  document.querySelectorAll(".domanda")[numeroDomanda - 1].classList.remove("attiva");
-  document.querySelectorAll(".domanda")[numeroDomanda].classList.add("attiva");
+  domande[domandaCorrente].classList.remove("attiva");
+  domandaCorrente++;
+  domande[domandaCorrente].classList.add("attiva");
 
-  if (numeroDomanda === 2) mostraRisultato();
+  aggiornaProgress();
+
+  if (domandaCorrente === totaleDomande) {
+    mostraRisultato();
+  }
 }
 
 function mostraRisultato() {
@@ -123,7 +156,11 @@ Jedi Grigio: ${punteggi.grigio}
 ${esito}
 `;
 }
+
+// inizializza
+aggiornaProgress();
 </script>
+
 
 </body>
 </html>
