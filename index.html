@@ -1,19 +1,12 @@
+<!-- Nuovo codice aggiornato: animazioni e statistiche finali -->
 <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiz della Forza</title>
-
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-
-<!-- Font stile sci-fi -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
-/* Corpo e sfondo */
 body {
   font-family: 'Orbitron', sans-serif;
   color: #f5f5f5;
@@ -22,135 +15,77 @@ body {
   padding: 30px 20px;
   text-align: center;
   overflow-x: hidden;
-  position: relative;
   background: black;
+  position: relative;
 }
 
 /* Canvas stelle */
 #stars {
-  position: fixed;
-  top:0; left:0;
-  width:100%;
-  height:100%;
-  z-index: -1;
-  background: black;
+  position: fixed; top:0; left:0; width:100%; height:100%; z-index: -1; background: black;
 }
 
-/* Titoli */
-h1 {
-  color: #ffe81f;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-h2 { margin-top:0; }
-
-/* Domande con sfondo semitrasparente */
+/* Domande */
 .domanda {
   display:none;
-  animation: fadeIn 0.5s ease;
   background: rgba(0,0,0,0.6);
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 15px;
+  opacity:0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
 }
-.domanda.attiva { display:block; }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+.domanda.attiva {
+  display:block;
+  opacity:1;
+  transform: translateY(0);
+}
 
 /* Risposte */
 label {
   display: block;
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   padding: 12px;
   margin: 12px 0;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
-label:hover { background: rgba(255,255,255,0.12); }
 input[type="radio"] { accent-color:#ffe81f; margin-right:10px; }
 
 /* Pulsanti */
 button {
-  margin-top: 25px;
-  padding: 16px 36px;
-  font-size: 18px;
-  font-family: 'Orbitron', sans-serif;
-  border: none;
-  border-radius: 30px;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 0 15px rgba(63,140,255,0.6);
+  margin-top: 25px; padding: 16px 36px; font-size: 18px; font-family: 'Orbitron', sans-serif;
+  border: none; border-radius: 30px; color: white; cursor: pointer;
   background: linear-gradient(90deg, #3f8cff, #1b3cff);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 0 15px rgba(63,140,255,0.6);
+  position: relative; overflow: hidden; transition: all 0.3s ease;
 }
-
-/* glow spada laser pulsante */
 button::before {
   content:"";
-  position:absolute;
-  top:0; left:0; right:0; bottom:0;
-  border-radius: 30px;
-  box-shadow: 0 0 30px #3f8cff, 0 0 60px #3f8cff inset;
-  opacity:0.6;
-  transition: all 0.3s ease;
-  pointer-events:none;
+  position:absolute; top:0; left:0; right:0; bottom:0; border-radius:30px;
+  box-shadow:0 0 30px #3f8cff,0 0 60px #3f8cff inset;
+  opacity:0.6; transition: all 0.3s ease; pointer-events:none;
 }
-button:active::before {
-  box-shadow: 0 0 60px #3f8cff, 0 0 100px #3f8cff inset;
-  opacity:1;
-}
+button:active::before { box-shadow:0 0 60px #3f8cff,0 0 100px #3f8cff inset; opacity:1; }
 
 /* Barra di progresso */
-#progress-container {
-  width: 100%;
-  height: 8px;
-  background: #222;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 20px 0 30px;
-}
-#progress-bar {
-  height:100%;
-  width:0%;
-  background: linear-gradient(90deg,#3f8cff,#ffe81f,#c62828);
-  transition: width 0.4s ease;
-}
+#progress-container { width:100%; height:8px; background:#222; border-radius:4px; overflow:hidden; margin:20px 0 30px;}
+#progress-bar { height:100%; width:0%; background: linear-gradient(90deg,#3f8cff,#ffe81f,#c62828); transition: width 0.4s ease; }
 
-/* Output risultato */
-#output { 
-  white-space: pre-line; 
-  margin-top: 20px; 
-  font-size:15px;
-  padding: 15px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.6);
-}
+/* Output risultato e statistiche */
+#output { margin-top:20px; padding:15px; border-radius:12px; background: rgba(0,0,0,0.6); white-space: pre-line; text-align:left; }
 
-/* Mobile adjustments */
-@media (max-width: 480px) {
-  body { padding: 20px 15px; }
-  h1 { font-size: 24px; }
-  h2 { font-size: 18px; }
-  label { font-size: 16px; padding: 14px; }
-  #progress-container { height: 6px; margin: 15px 0 25px; }
-}
+/* Mobile */
+@media(max-width:480px){ body{padding:20px 15px;} h1{font-size:24px;} h2{font-size:18px;} label{font-size:16px;} #progress-container{height:6px;margin:15px 0 25px;} }
 </style>
 </head>
-
 <body>
 <canvas id="stars"></canvas>
-
 <h1>Quiz della Forza</h1>
 <p style="font-size:12px; opacity:0.7;">Scopri se sei Jedi, Sith o Jedi Grigio</p>
+<div id="progress-container"><div id="progress-bar"></div></div>
 
-<div id="progress-container">
-  <div id="progress-bar"></div>
-</div>
-
-<!-- Domande -->
 <div class="domanda attiva">
   <h2>Domanda 1: Quale lato della Forza ti attrae di più?</h2>
   <label><input type="radio" name="q0" value="jedi"> La luce e l'equilibrio</label>
@@ -166,7 +101,6 @@ button:active::before {
 </div>
 
 <button id="next">Avanti</button>
-
 <div id="output"></div>
 <button id="ricomincia" style="display:none;">🔄 Ricomincia il Quiz</button>
 
@@ -177,17 +111,15 @@ const domande = document.querySelectorAll(".domanda");
 const nextBtn = document.getElementById("next");
 const ricominciaBtn = document.getElementById("ricomincia");
 const progressBar = document.getElementById("progress-bar");
-
 let punteggi = { jedi:0, sith:0, grigio:0 };
 
-function aggiornaProgress(){
-  progressBar.style.width = ((domandaCorrente)/domande.length*100)+"%";
-}
+function aggiornaProgress(){ progressBar.style.width=((domandaCorrente)/domande.length*100)+"%"; }
 
-nextBtn.addEventListener("click", function(){
-  const selected = document.querySelector('input[name="q'+domandaCorrente+'"]:checked');
+nextBtn.addEventListener("click",function(){
+  const selected=document.querySelector('input[name="q'+domandaCorrente+'"]:checked');
   if(!selected){ alert("Seleziona una risposta!"); return; }
   punteggi[selected.value]++;
+  // ---- Animazione ologramma scorrimento ----
   domande[domandaCorrente].classList.remove("attiva");
   domandaCorrente++;
   if(domandaCorrente<domande.length){
@@ -197,29 +129,29 @@ nextBtn.addEventListener("click", function(){
 });
 
 function mostraRisultato(){
-  const output = document.getElementById("output");
+  const output=document.getElementById("output");
   let esito="⚖️ Jedi Grigio – cammini tra luce e oscurità";
-  let colore="#a080ff"; // Grigio
-  if(punteggi.jedi>punteggi.sith && punteggi.jedi>punteggi.grigio){
-    esito="🟦 Jedi – segui la luce e l’equilibrio della Forza";
-    colore="#3f8cff";
-  } else if(punteggi.sith>punteggi.jedi && punteggi.sith>punteggi.grigio){
-    esito="🟥 Sith – la passione e il potere guidano le tue scelte";
-    colore="#c62828";
-  }
-  output.innerText=`Punteggi finali:\nJedi: ${punteggi.jedi}\nSith: ${punteggi.sith}\nJedi Grigio: ${punteggi.grigio}\n\n${esito}`;
+  let colore="#a080ff"; // grigio
+  if(punteggi.jedi>punteggi.sith && punteggi.jedi>punteggi.grigio){ esito="🟦 Jedi – segui la luce e l’equilibrio della Forza"; colore="#3f8cff"; }
+  else if(punteggi.sith>punteggi.jedi && punteggi.sith>punteggi.grigio){ esito="🟥 Sith – la passione e il potere guidano le tue scelte"; colore="#c62828"; }
+
+  // ---- Statistiche finali con percentuali ----
+  const totale = punteggi.jedi+punteggi.sith+punteggi.grigio;
+  const percJedi = ((punteggi.jedi/totale)*100).toFixed(0);
+  const percSith = ((punteggi.sith/totale)*100).toFixed(0);
+  const percGrigio = ((punteggi.grigio/totale)*100).toFixed(0);
+
+  output.innerText=`Punteggi finali:\nJedi: ${punteggi.jedi} (${percJedi}%)\nSith: ${punteggi.sith} (${percSith}%)\nJedi Grigio: ${punteggi.grigio} (${percGrigio}%)\n\n${esito}`;
   output.style.color=colore;
-  output.style.textShadow=`0 0 25px ${colore}, 0 0 50px ${colore}`;
-  
+  output.style.textShadow=`0 0 25px ${colore},0 0 50px ${colore}`;
   nextBtn.style.display="none";
   ricominciaBtn.style.display="inline-block";
-  ricominciaBtn.style.background = `linear-gradient(90deg, ${colore}, ${colore})`;
-  ricominciaBtn.style.boxShadow = `0 0 20px ${colore}, 0 0 50px ${colore} inset`;
-  
+  ricominciaBtn.style.background=`linear-gradient(90deg,${colore},${colore})`;
+  ricominciaBtn.style.boxShadow=`0 0 20px ${colore},0 0 50px ${colore} inset`;
   progressBar.style.width="100%";
 }
 
-ricominciaBtn.addEventListener("click", function(){
+ricominciaBtn.addEventListener("click",function(){
   punteggi={jedi:0,sith:0,grigio:0};
   domandaCorrente=0;
   domande.forEach(d=>d.classList.remove("attiva"));
@@ -232,54 +164,17 @@ ricominciaBtn.addEventListener("click", function(){
   aggiornaProgress();
 });
 
-// ===== Stelle animate con Canvas =====
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
-let width = canvas.width = window.innerWidth;
-let height = canvas.height = window.innerHeight;
-
-const stars = [];
-const numStars = 150;
-
-// crea stelle
-for(let i=0;i<numStars;i++){
-  stars.push({
-    x: Math.random()*width,
-    y: Math.random()*height,
-    r: Math.random()*1.5+0.5,
-    dx: (Math.random()-0.5)/2,
-    dy: (Math.random()-0.5)/2
-  });
-}
-
-function animateStars(){
-  ctx.clearRect(0,0,width,height);
-  for(let s of stars){
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle="white";
-    ctx.fill();
-    s.x += s.dx;
-    s.y += s.dy;
-
-    if(s.x<0) s.x=width;
-    if(s.x>width) s.x=0;
-    if(s.y<0) s.y=height;
-    if(s.y>height) s.y=0;
-  }
-  requestAnimationFrame(animateStars);
-}
+// ---- Stelle animate ----
+const canvas=document.getElementById('stars');
+const ctx=canvas.getContext('2d');
+let width=canvas.width=window.innerWidth;
+let height=canvas.height=window.innerHeight;
+const stars=[];
+const numStars=150;
+for(let i=0;i<numStars;i++){ stars.push({ x:Math.random()*width, y:Math.random()*height, r:Math.random()*1.5+0.5, dx:(Math.random()-0.5)/2, dy:(Math.random()-0.5)/2 }); }
+function animateStars(){ ctx.clearRect(0,0,width,height); for(let s of stars){ ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle="white"; ctx.fill(); s.x+=s.dx; s.y+=s.dy; if(s.x<0)s.x=width; if(s.x>width)s.x=0; if(s.y<0)s.y=height; if(s.y>height)s.y=0; } requestAnimationFrame(animateStars); }
 animateStars();
-
-window.addEventListener('resize', ()=>{
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-});
-
-// PWA: service worker registrazione
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("service-worker.js");
-}
+window.addEventListener('resize',()=>{ width=canvas.width=window.innerWidth; height=canvas.height=window.innerHeight; });
 </script>
 </body>
 </html>
