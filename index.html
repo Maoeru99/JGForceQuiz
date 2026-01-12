@@ -207,6 +207,7 @@ button.sith {
 <div class="domanda" id="risultato">
   <h2>✨ Il tuo destino nella Forza</h2>
   <p id="output"></p>
+  <button id="ricomincia" style="margin-top:20px;">🔄 Ricomincia il Quiz</button>
 </div>
 
 <script>
@@ -292,6 +293,30 @@ window.addEventListener("beforeunload", function (e) {
   e.preventDefault();
   e.returnValue = "";
 });
+
+  document.getElementById("ricomincia").addEventListener("click", function() {
+  // reset punteggi
+  punteggi = { jedi: 0, sith: 0, grigio: 0 };
+  localStorage.removeItem("punteggi");
+  localStorage.removeItem("domandaCorrente");
+
+  // reset domanda corrente
+  domandaCorrente = 0;
+
+  // reset glow output
+  const output = document.getElementById("output");
+  output.innerText = "";
+  output.style.color = "#f5f5f5";
+  output.style.textShadow = "none";
+
+  // nascondi tutte le domande + mostra prima
+  domande.forEach(d => d.classList.remove("attiva"));
+  domande[0].classList.add("attiva");
+
+  // reset barra di progresso
+  aggiornaProgress();
+});
+
 </script>
 
 
