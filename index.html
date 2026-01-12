@@ -70,23 +70,37 @@ label {
 label:hover { background: rgba(255,255,255,0.12); }
 input[type="radio"] { accent-color:#ffe81f; margin-right:10px; }
 
-/* Pulsante */
+/* Pulsanti */
 button {
   margin-top: 25px;
-  padding: 12px 30px;
-  font-size: 16px;
+  padding: 16px 36px;
+  font-size: 18px;
   font-family: 'Orbitron', sans-serif;
-  background: linear-gradient(90deg, #3f8cff, #1b3cff);
   border: none;
   border-radius: 30px;
   color: white;
   cursor: pointer;
   box-shadow: 0 0 15px rgba(63,140,255,0.6);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: linear-gradient(90deg, #3f8cff, #1b3cff);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(63,140,255,0.9);
+
+/* glow spada laser pulsante */
+button::before {
+  content:"";
+  position:absolute;
+  top:0; left:0; right:0; bottom:0;
+  border-radius: 30px;
+  box-shadow: 0 0 30px #3f8cff, 0 0 60px #3f8cff inset;
+  opacity:0.6;
+  transition: all 0.3s ease;
+  pointer-events:none;
+}
+button:active::before {
+  box-shadow: 0 0 60px #3f8cff, 0 0 100px #3f8cff inset;
+  opacity:1;
 }
 
 /* Barra di progresso */
@@ -113,6 +127,15 @@ button:hover {
   padding: 15px;
   border-radius: 12px;
   background: rgba(0,0,0,0.6);
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  body { padding: 20px 15px; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 18px; }
+  label { font-size: 16px; padding: 14px; }
+  #progress-container { height: 6px; margin: 15px 0 25px; }
 }
 </style>
 </head>
@@ -176,19 +199,23 @@ nextBtn.addEventListener("click", function(){
 function mostraRisultato(){
   const output = document.getElementById("output");
   let esito="⚖️ Jedi Grigio – cammini tra luce e oscurità";
-  let colore="#a080ff", shadow="0 0 20px #a080ff";
+  let colore="#a080ff"; // Grigio
   if(punteggi.jedi>punteggi.sith && punteggi.jedi>punteggi.grigio){
     esito="🟦 Jedi – segui la luce e l’equilibrio della Forza";
-    colore="#3f8cff"; shadow="0 0 25px #3f8cff";
+    colore="#3f8cff";
   } else if(punteggi.sith>punteggi.jedi && punteggi.sith>punteggi.grigio){
     esito="🟥 Sith – la passione e il potere guidano le tue scelte";
-    colore="#c62828"; shadow="0 0 25px #c62828";
+    colore="#c62828";
   }
   output.innerText=`Punteggi finali:\nJedi: ${punteggi.jedi}\nSith: ${punteggi.sith}\nJedi Grigio: ${punteggi.grigio}\n\n${esito}`;
   output.style.color=colore;
-  output.style.textShadow=shadow;
+  output.style.textShadow=`0 0 25px ${colore}, 0 0 50px ${colore}`;
+  
   nextBtn.style.display="none";
   ricominciaBtn.style.display="inline-block";
+  ricominciaBtn.style.background = `linear-gradient(90deg, ${colore}, ${colore})`;
+  ricominciaBtn.style.boxShadow = `0 0 20px ${colore}, 0 0 50px ${colore} inset`;
+  
   progressBar.style.width="100%";
 }
 
