@@ -17,9 +17,7 @@ body {
   background: black;
   position: relative;
 }
-#stars {
-  position: fixed; top:0; left:0; width:100%; height:100%; z-index: -1; background: black;
-}
+#stars { position: fixed; top:0; left:0; width:100%; height:100%; z-index: -1; background: black; }
 h1 { color: #ffe81f; letter-spacing:2px; margin-bottom:10px; }
 h2 { margin-top:0; }
 
@@ -49,7 +47,11 @@ button:active::before { box-shadow:0 0 60px #3f8cff,0 0 100px #3f8cff inset; opa
 #progress-container { width:100%; height:8px; background:#222; border-radius:4px; overflow:hidden; margin:20px 0 30px;}
 #progress-bar { height:100%; width:0%; background: linear-gradient(90deg,#3f8cff,#ffe81f,#c62828); transition: width 0.4s ease; }
 
-#output { margin-top:20px; padding:15px; border-radius:12px; background: rgba(0,0,0,0.6); white-space: pre-line; text-align:left; }
+#output { margin-top:20px; padding:15px; border-radius:12px; background: rgba(0,0,0,0.6); white-space: pre-line; text-align:left; position:relative; }
+
+#chart { margin-top:20px; height:150px; width:100%; display:flex; justify-content:space-around; align-items:flex-end; }
+
+.bar { width:30%; border-radius:6px; display:flex; align-items:flex-end; justify-content:center; color:white; font-weight:bold; transition: all 0.5s ease; }
 
 @media(max-width:480px){
   body{padding:20px 15px;} h1{font-size:24px;} h2{font-size:18px;} label{font-size:16px;} 
@@ -79,6 +81,7 @@ button:active::before { box-shadow:0 0 60px #3f8cff,0 0 100px #3f8cff inset; opa
 
 <button id="next">Avanti</button>
 <div id="output"></div>
+<div id="chart"></div>
 <button id="ricomincia" style="display:none;">🔄 Ricomincia il Quiz</button>
 
 <script>
@@ -88,6 +91,7 @@ const domande=document.querySelectorAll(".domanda");
 const nextBtn=document.getElementById("next");
 const ricominciaBtn=document.getElementById("ricomincia");
 const progressBar=document.getElementById("progress-bar");
+const chartDiv=document.getElementById("chart");
 let punteggi={jedi:0,sith:0,grigio:0};
 
 function aggiornaProgress(){ progressBar.style.width=((domandaCorrente)/domande.length*100)+"%"; }
@@ -98,12 +102,12 @@ nextBtn.addEventListener("click",function(){
   punteggi[selected.value]++;
 
   const currentDomanda = domande[domandaCorrente];
-  currentDomanda.classList.add("esci"); // animazione uscita
+  currentDomanda.classList.add("esci"); 
   setTimeout(()=>{
     currentDomanda.classList.remove("attiva","esci");
     domandaCorrente++;
     if(domandaCorrente<domande.length){
-      domande[domandaCorrente].classList.add("attiva"); // animazione entrata
+      domande[domandaCorrente].classList.add("attiva"); 
     } else { mostraRisultato(); }
     aggiornaProgress();
   },500);
@@ -121,6 +125,7 @@ function mostraRisultato(){
   const percSith = ((punteggi.sith/totale)*100).toFixed(0);
   const percGrigio = ((punteggi.grigio/totale)*100).toFixed(0);
 
+  // testo risultato
   output.innerText=`Punteggi finali:\nJedi: ${punteggi.jedi} (${percJedi}%)\nSith: ${punteggi.sith} (${percSith}%)\nJedi Grigio: ${punteggi.grigio} (${percGrigio}%)\n\n${esito}`;
   output.style.color=colore;
   output.style.textShadow=`0 0 25px ${colore},0 0 50px ${colore}`;
@@ -129,7 +134,37 @@ function mostraRisultato(){
   ricominciaBtn.style.background=`linear-gradient(90deg,${colore},${colore})`;
   ricominciaBtn.style.boxShadow=`0 0 20px ${colore},0 0 50px ${colore} inset`;
   progressBar.style.width="100%";
+
+  // ---- effetto rilascio Forza ----
+  for(let i=0;i<50;i++){
+    const p=document.createElement("div");
+    p.style.position="absolute";
+    p.style.width="6px"; p.style.height="6px"; p.style.borderRadius="50%";
+    p.style.background=colore;
+    p.style.left=(Math.random()*output.offsetWidth)+"px";
+    p.style.top=(Math.random()*output.offsetHeight)+"px";
+    p.style.opacity=Math.random();
+    p.style.animation=`floatUp ${2+Math.random()*2}s ease-out forwards`;
+    output.appendChild(p);
+  }
+
+  // ---- grafico barre statistiche ----
+  chartDiv.innerHTML="";
+  const data=[{label:"Jedi",value:percJedi,color:"#3f8cff"},{label:"Sith",value:percSith,color:"#c62828"},{label:"Grigio",value:percGrigio,color:"#a080ff"}];
+  data.forEach(d=>{
+    const bar=document.createElement("div");
+    bar.className="bar";
+    bar.style.height=d.value+"%";
+    bar.style.background=d.color;
+    bar.innerText=d.value+"%";
+    chartDiv.appendChild(bar);
+  });
 }
+
+// Animazione float Up per particelle Forza
+const style=document.createElement("style");
+style.innerHTML=`@keyframes floatUp {0%{transform:translateY(0);opacity:1;}100%{transform:translateY(-100px);opacity:0;}}`;
+document.head.appendChild(style);
 
 ricominciaBtn.addEventListener("click",function(){
   punteggi={jedi:0,sith:0,grigio:0};
@@ -139,6 +174,7 @@ ricominciaBtn.addEventListener("click",function(){
   document.getElementById("output").innerText="";
   document.getElementById("output").style.color="#f5f5f5";
   document.getElementById("output").style.textShadow="none";
+  chartDiv.innerHTML="";
   nextBtn.style.display="inline-block";
   ricominciaBtn.style.display="none";
   aggiornaProgress();
